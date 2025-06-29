@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import os
 import sys
 from pathlib import Path
 
@@ -10,6 +11,14 @@ class Tree:
         self.ignoreList: list[str] = []
         self.dirCount = 0
         self.fileCount = 0
+
+    def entry_info(self, entry: Path) -> str:
+        if entry.is_dir():
+            return f"{entry.name}/"
+        elif entry.is_file() and os.access(entry, os.X_OK):
+            return f"{entry.name}*"
+        else:
+            return entry.name
 
     def ignore(self, patterns: list[str]) -> None:
         self.ignoreList.extend(patterns)
@@ -33,7 +42,7 @@ class Tree:
             self.register(entry)
 
             connector = "└── " if index == len(entries) - 1 else "├── "
-            print(prefix + connector + entry.name)
+            print(prefix + connector + self.entry_info(entry))
 
             if entry.is_dir():
                 new_prefix = prefix + ("    " if index == len(entries) - 1 else "│   ")
